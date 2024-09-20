@@ -24,13 +24,13 @@ def require(name, package = None):
 
 require("tkinter")
 
-import webbrowser
+from io import BytesIO
+from zipfile import ZipFile
 import urllib.request
 from tkinter import *
 import tkinter.messagebox as messagebox
 import os, json
 
-src_path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Documents')
 update_url = "https://raw.githubusercontent.com/NotCrazyH2/toomuch/refs/heads/main/versions.json"
 
 class Installer:
@@ -59,17 +59,25 @@ Made by CrazyH2 (https://github.com/crazyh2)
     def install(self):
         version = self.getLatestVersion()
 
-        #with urllib.request.urlopen(version["file"]) as upd:
-        #    with open(src_path, "wb+") as f:
-        #        f.write(upd.read())
-        webbrowser.open(version["file"])
+        response = urllib.request.urlopen(version["file"])
+        thezip = ZipFile(BytesIO(response.read()))
 
-        messagebox.showwarning("Animat-a-background", """Open the python file in your downloads.
+        thezip.extractall(path = os.path.join(os.path.join(os.environ['USERPROFILE']), 'CrazyHUtilities'))
+
+        if version["hash"] != generate_file_md5(os.path.join(os.environ['USERPROFILE']), "CrazyHUtilities"):
+            messagebox.showwarning("Animat-a-background", """The software could not be verified. If you see this message report it!
+                                            
+            Made by CrazyH2 (https://github.com/crazyh2)
+            © Copyright 2024 CrazyH2. All rights reserved.""")
+            exit()
+
+        messagebox.showwarning("Animat-a-background", """The software was installed.
                                 
 Made by CrazyH2 (https://github.com/crazyh2)
 © Copyright 2024 CrazyH2. All rights reserved.""")
 
         #os.system(f'python animatedBackground_{version.version}.pyw')
+        os.startfile(os.path.join(os.environ['USERPROFILE']), 'CrazyHUtilities')
         exit()
 
 if __name__ == "__main__":
